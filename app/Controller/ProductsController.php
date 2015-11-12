@@ -1,5 +1,7 @@
 <?php
 
+// pr ($var)
+
 App::uses('AppController', 'Controller');
 require_once(APP . 'Vendor' . DS . 'simple_html_dom.php');
 
@@ -106,19 +108,19 @@ class ProductsController extends AppController {
 			$max_page = intval($max_page);
 		}
 		// 商品情報を取得する。
-		$html = $html->find('ul[id=s-results-list-atf] li');
+		$html = $html->find('div[id=resultsCol] li.s-result-item');
 		$products = array();
 		foreach ($html as $li) {
+			if (!isset($li->attr['data-asin'])) continue;
 			// ASINコード
 			$asin = $li->attr['data-asin'];
 			// 商品名
 			$name = $li->find('div.s-item-container div.a-spacing-mini a.s-access-detail-page', 0);
-			$name = trim($name->title);
+			$name = trim($name->plaintext);
 			// 価格
 			$price = $li->find('div.s-item-container div.a-spacing-mini a.a-link-normal span.s-price', 0);
 			$price = str_replace(array('￥ ', ','), '', trim($price->plaintext));
 			$price = intval($price);
-			debug($asin. ': ' . $price);
 
 			// TODO: 同じ商品だけど、他の店でもあるみたい。
 			$products[] = array(

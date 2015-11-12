@@ -31,4 +31,39 @@ App::uses('Controller', 'Controller');
  * @link		http://book.cakephp.org/2.0/en/controllers.html#the-app-controller
  */
 class AppController extends Controller {
+
+	public $helpers = array('Session', 'Html', 'Form');
+	public $components = array(
+			'Session',
+			'Cookie',
+			'Auth' => array(
+					'authError' => 'このページにアクセスできません。管理者に連絡してください。',
+					'loginRedirect' => array(
+							'controller' => 'sellers',
+							'action' => 'index'
+					),
+					'logoutRedirect' => array(
+						'controller' => 'users',
+						'action' => 'login'
+					),
+					'loginAction' => array(
+							'controller' => 'users',
+							'action' => 'login'
+					),
+					'authorize' => array('Controller'),
+					'authenticate' => array(
+		                'Form' => array(
+		                    'passwordHasher' => 'Blowfish'
+		                )
+		            )
+			)
+	);
+
+	function beforeFilter() {
+		parent::beforeFilter();
+	}
+
+	public function isAuthorized($user = null) {
+		return isset($user['role']);
+	}
 }

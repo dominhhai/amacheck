@@ -266,7 +266,7 @@
  * Uncomment this line and correct your server timezone to fix
  * any date & time related errors.
  */
-	//date_default_timezone_set('UTC');
+	date_default_timezone_set('Asia/Tokyo');
 
 /**
  * `Config.timezone` is available in which you can set users' timezone string.
@@ -274,7 +274,7 @@
  * then the value of `Config.timezone` will be used. This feature allows you to set users' timezone just
  * once instead of passing it each time in function calls.
  */
-	//Configure::write('Config.timezone', 'Europe/Paris');
+	Configure::write('Config.timezone', 'Asia/Tokyo');
 
 /**
  * Cache Engine Configuration

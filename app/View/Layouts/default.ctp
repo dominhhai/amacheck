@@ -58,9 +58,8 @@
 			<?php echo $this->fetch('content'); ?>
 		</div>
 		<div id="footer">
-			<a href="http://haposoft.com/" target="_blank">® HapOsoft.com 2015</a>
+			<a href="http://haposoft.com/" target="_blank">連絡先 HapOsoft.com 2015</a>
 		</div>
 	</div>
-	<?php echo $this->element('sql_dump'); ?>
 </body>
 </html>

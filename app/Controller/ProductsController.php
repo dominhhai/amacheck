@@ -53,7 +53,7 @@ class ProductsController extends AppController {
 		if (!$this->request->is('ajax')) {
 			return $this->redirect(array('controller'=> 'sellers'));
 		}
-		$asin = 'B00GOM4NQA';
+		$asin = trim($this->request->data['id']);
 
 		$graph = $this->Price->findById($asin);
 
@@ -70,7 +70,7 @@ class ProductsController extends AppController {
 			}
 		}
 
-		return array('asin'=> $asin, 'graph'=> $graph);
+		return $graph;
 	}
 
 	private function isValid($date) {

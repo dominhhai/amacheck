@@ -5,6 +5,13 @@ App::uses('AppController', 'Controller');
 class SellersController extends AppController {
 
 	public $uses = array('Seller', 'Product', 'Price');
+	public $components = array('Paginator');
+	public $paginate = array(
+		'limit'=> 10,
+		'order'=> array(
+			'Product.seller_id'=> 'asc'
+			)
+		);
 
 	public function index() {
 		$this->set('title_for_layout', '商品一覧');
@@ -72,7 +79,48 @@ class SellersController extends AppController {
 	}
 
 	public function price() {
+		if (($sellers = $this->Session->read('sellers')) == null) {
+			return $this->redirect(array('action'=> 'index'));
+		}
 		$this->set('title_for_layout', 'ランキング変動');
+		$this->set('status', array('未取得', '取得中', '取得済み', '取得失敗'));
+
+		$sellerNames = array();
+		foreach ($sellers['sellers'] as $seller) {
+			$sellerNames[] = $seller['name'];
+		}
+
+		if ($this->request->is('post')) {
+			$this->layout = FALSE;
+			$this->autoRender = FALSE;
+			if (isset($this->request->data['Product'])) {
+				$productIds = array_keys($this->request->data['Product']);
+			} else {
+				$productIds = array();
+			}
+
+			$products = $this->Product->find('all', array(
+			'conditions'=> array(
+				'Product.id'=> $productIds,
+				'price <='=> $sellers['price']['max'],
+				'price >='=> $sellers['price']['min'],
+				'Seller.name'=> $sellerNames
+				),
+			'order'=> array('Seller.name', 'Product.name')
+			));
+
+			return $this->writeProductCsv($products);
+		}
+
+		$products = $this->Product->find('all', array(
+			'conditions'=> array(
+				'price <='=> $sellers['price']['max'],
+				'price >='=> $sellers['price']['min'],
+				'Seller.name'=> $sellerNames
+				),
+			'order'=> array('Seller.name', 'Product.name')
+			));
+		$this->set('products', $products);
 	}
 
 	private function readSellerCsv($file) {
@@ -107,6 +155,34 @@ class SellersController extends AppController {
 		}
 
 		return $sellers;
+	}
+
+	private function writeProductCsv($products) {
+		header('Content-Type: application/octet-stream');
+		header('Content-Disposition: attachment; filename=商品一覧_'. date('YmdHis') .'.csv');
+
+		$stream = fopen('php://output', 'w');
+		fputcsv($stream, array(
+			"出品者名",
+			"タイトル",
+			"ASINコード",
+			"商品URL",
+			"プライスチェックURL"
+			)
+		);
+		foreach ($products as $product) {
+			mb_convert_variables('SJIS-win', 'UTF-8', $product['Product']['name']);
+			fputcsv($stream, array(
+				$product['Seller']['name'],
+				$product['Product']['name'],
+				$product['Product']['id'],
+				"http://www.amazon.co.jp/dp/" . $product['Product']['id'],
+				"http://so-bank.jp/detail/?code=" . $product['Product']['id']
+				)
+			);
+		}
+
+		fclose($stream);
 	}
 
 }

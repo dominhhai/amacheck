@@ -10,7 +10,7 @@
 	$priceOpt = array('label' => false, 'div'=> false, 'onkeypress'=>"return event.charCode === 0 || event.charCode === 13 || /\d/.test(String.fromCharCode(event.charCode));");
 	echo $this->Form->input('price_max', $priceOpt);
 	echo $this->Form->button('商品検索', array('type' => 'submit', 'div'=> false,'class'=> "btn btn-primary"));
-	?><a href="sellers/price" class="btn btn-info" style="visibility: visible;">プライスチェックへ</a>
+	?><a id="btn-pricecheck" href="sellers/price" class="btn btn-info" disabled='disabled' onclick="return false;">プライスチェックへ</a>
 <?php echo $this->Form->end(); ?>
 
 <table class="sellers table table-bordered table-hover fixed">
@@ -39,6 +39,15 @@
 </div>
 
 <script type="text/javascript">
+var counter
+var max
+
+function done () {
+	var pricecheck = $('#btn-pricecheck')
+	pricecheck.removeAttr('disabled')
+	pricecheck.removeAttr('onclick')
+}
+
 function getProducts (ele) {
 	ele.attr('status', 1)
 	ele.text("<?php echo $status[1]; ?>")
@@ -50,7 +59,6 @@ function getProducts (ele) {
 			name: ele.attr('name')
 		},
 		success: function(data) {
-			console.log(data)
 			if (data == -1) {
 				ele.attr('status', 3)
 				ele.text("<?php echo $status[3]; ?>")
@@ -58,16 +66,25 @@ function getProducts (ele) {
 				ele.attr('status', 2)
 				ele.text("<?php echo $status[2]; ?>（" + data + "件）")
 			}
+
+			counter ++
+			if (counter >= max) done()
 		},
 		error: function(err) {
 			ele.attr('status', 3)
 			ele.text("<?php echo $status[3]; ?>")
+
+			counter ++
+			if (counter >= max) done()
 		}
 	})
 }
 
 $(document).ready(function() {
-	$( "table.sellers td.load" ).each(function(index) {
+	var sellers = $('table.sellers td.load')
+	max = sellers.length
+	counter = 0
+	sellers.each(function(index) {
 		getProducts($(this))
 	})
 })

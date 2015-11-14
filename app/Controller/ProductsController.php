@@ -10,29 +10,48 @@ class ProductsController extends AppController {
 	public $uses = array('Seller', 'Product', 'Price');
 
 	public function product() {
-		$seller_id = 'A3K6ZFF8F36ZK4';
-		$seller_name = 'FREEショップ';
+		$this->autoRender = FALSE;
+		if (!$this->request->is('ajax')) {
+			return $this->redirect(array('controller'=> 'sellers'));
+		}
+		// 最高価格を確認
+		$price = $this->Session->read('sellers');
+		if ($price == null) {
+			return -1;
+		} else {
+			$price = $price['price'];
+		}
+		// リクエストデータを取得
+		$seller_id = trim($this->request->data['id']);
+		$seller_name = trim($this->request->data['name']);
 
-		$id = null;
-
-		$seller = $this->Seller->findByMe($seller_id);
+		if ($seller_id == '' || $seller_name == '') {
+			return -1;
+		}
 
 		// キャッシュ時間内、データを返す。
+		$seller = $this->Seller->findByMe($seller_id);
 		if ($seller && $this->isValid($seller['Seller']['updated_date'])) {
-			$seller = true;
+			$id = $seller['Seller']['id'];
 		}
 		// データがない場合、又はデータが古い場合、新データを取得する。
 		else {
-			if ($seller) $id = $seller['Seller']['id'];
-			try {
-				$seller = $this->crawlAmazon($seller_id, $seller_name, $id);
-			} catch (Exception $ex) {
-
-			}
+			$id = $this->crawlAmazon($seller_id, $seller_name, $seller ? $seller['Seller']['id'] : null);
 		}
+
+		if ($id == FALSE) {
+			return -1;
+		}
+		$products = $this->Product->find('count', array('conditions'=> array('seller_id'=> $id, 'price <='=> $price)));
+
+		return $products;
 	}
 
 	public function price() {
+		$this->autoRender = FALSE;
+		if (!$this->request->is('ajax')) {
+			return $this->redirect(array('controller'=> 'sellers'));
+		}
 		$asin = 'B00GOM4NQA';
 
 		$graph = $this->Price->findById($asin);
@@ -71,19 +90,24 @@ class ProductsController extends AppController {
 		if ($id != null) $seller['id'] = $id;
 		$this->Seller->save($seller);
 		
-		$maxPage = 1;
+		$maxPage = -1;
 		$curPage = 1;
 		while (true) {
-			$max_page = $this->crawlAmazonProduct($seller_id, $curPage, $this->Seller->id, $updated_by, $updated_date);
-			if ($curPage == 1) {
-				$maxPage = $max_page;
+			try {
+				$max_page = $this->crawlAmazonProduct($seller_id, $curPage, $this->Seller->id, $updated_by, $updated_date);
+				if ($curPage == 1) {
+					$maxPage = $max_page;
+				}
+				if ($curPage >= $maxPage) break;
+				$curPage ++;
+			} catch (Exception $ex) {
+				$maxPage = -1;
+				$this->Seller->delete($this->Seller->id);
+				return FALSE;
 			}
-
-			if ($curPage >= $maxPage) break;
-			$curPage ++;
 		}
-		
-		return $maxPage;
+
+		return $this->Seller->id;
 	}
 
 	private function crawlAmazonProduct($seller_id, $page, $db_seller_id, $updated_by, $updated_date) {
@@ -98,7 +122,7 @@ class ProductsController extends AppController {
 			$max_page = $max_page->last_child()->prev_sibling()->prev_sibling();
 
 			$class = $max_page->class;
-			if (strpos($class,'pagnLink') !== false) {
+			if (strpos($class,'pagnLink') == false) {
 				$max_page = trim($max_page->plaintext);
 			} else {
 				$max_page = $max_page->find('a', 0);
@@ -119,8 +143,12 @@ class ProductsController extends AppController {
 			$name = trim($name->plaintext);
 			// 価格
 			$price = $li->find('div.s-item-container div.a-spacing-mini a.a-link-normal span.s-price', 0);
-			$price = str_replace(array('￥ ', ','), '', trim($price->plaintext));
-			$price = intval($price);
+			if ($price) {
+				$price = str_replace(array('￥ ', ','), '', trim($price->plaintext));
+				$price = intval($price);
+			} else {
+				$price = 0;
+			}
 
 			// TODO: 同じ商品だけど、他の店でもあるみたい。
 			$products[] = array(

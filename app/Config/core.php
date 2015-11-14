@@ -19,6 +19,7 @@
  */
 
 //setLocale(LC_ALL, 'deu');
+setlocale(LC_ALL, 'ja_JP.UTF-8');
 //Configure::write('Config.language', 'deu');
 
 /**

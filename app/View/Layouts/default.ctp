@@ -27,15 +27,38 @@
 </head>
 <body>
 	<div id="container">
-		<div id="header">
-			
-		</div>
+		<?php if($authUser): ?>
+		<nav class="navbar navbar-inverse" style="margin-bottom:0;">
+			<div class="container-fluid">
+				<div class="navbar-header">
+					<a class="navbar-brand" href="/sellers">AmaCheck</a>
+				</div>
+				<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+					<ul class="nav navbar-nav navbar-right">
+						<?php if($authUser['role'] == 999): ?>
+						<li><a href="/users/index">ユーザマスタ</a></li>
+						<?php endif; ?>
+						<li class="dropdown">
+							<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><?php echo $authUser['name']; ?><span class="caret"></span></a>
+							<ul class="dropdown-menu">
+								<li><a href="/users/detail/id:<?php echo $authUser['id']; ?>">プロファイル</a></li>
+								<li><a href="/users/change_pass">パスワード変更</a></li>
+								<li role="separator" class="divider"></li>
+								<li><a href="/users/logout">ログアウト</a></li>
+							</ul>
+						</li>
+						<li><a href="/users/logout">ログアウト</a></li>
+					</ul>
+				</div>
+			</div>
+		</nav>
+		<?php endif; ?>
 		<div id="content">
 			<?php echo $this->Flash->render(); ?>
 			<?php echo $this->fetch('content'); ?>
 		</div>
 		<div id="footer">
-			<p style="text-align: center;">® HapOsoft.com 2015</p>
+			<a href="http://haposoft.com/" target="_blank">® HapOsoft.com 2015</a>
 		</div>
 	</div>
 	<?php echo $this->element('sql_dump'); ?>

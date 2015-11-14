@@ -14,7 +14,7 @@ class ProductsController extends AppController {
 		if (!$this->request->is('ajax')) {
 			return $this->redirect(array('controller'=> 'sellers'));
 		}
-		// 最高価格を確認
+		// 金額を確認
 		$price = $this->Session->read('sellers');
 		if ($price == null) {
 			return -1;
@@ -42,7 +42,8 @@ class ProductsController extends AppController {
 		if ($id == FALSE) {
 			return -1;
 		}
-		$products = $this->Product->find('count', array('conditions'=> array('seller_id'=> $id, 'price <='=> $price)));
+		$products = $this->Product->find('count', array('conditions'=>
+			array('seller_id'=> $id, 'price <='=> $price['max'], 'price >='=> $price['min'])));
 
 		return $products;
 	}

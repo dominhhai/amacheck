@@ -1,12 +1,14 @@
 <div class="upload">
 <?php echo $this->Session->flash('upload'); ?>
 <?php
-	echo $this->Form->create('Seller', array('type'=> 'file', 'class'=> 'required'));
+	echo $this->Form->create('Seller', isset($sellers) ? array('type'=> 'file') : array('type'=> 'file', 'class'=> 'required'));
 	echo $this->Form->label('file', '出品者 CSV');
 	echo $this->Form->file('file', array('style'=> 'display: inline;'));
-	echo $this->Form->input('price', array('label' => '最高価格(￥)', 'div'=> false,
-		'onkeypress'=>"return event.charCode === 0 || event.charCode === 13 || /\d/.test(String.fromCharCode(event.charCode));"
-		, 'value'=> $price));
+	$priceOpt = array('label' => '金額設定', 'div'=> false, 'onkeypress'=>"return event.charCode === 0 || event.charCode === 13 || /\d/.test(String.fromCharCode(event.charCode));");
+	echo $this->Form->input('price_min', $priceOpt);
+	?> 〜 <?php
+	$priceOpt = array('label' => false, 'div'=> false, 'onkeypress'=>"return event.charCode === 0 || event.charCode === 13 || /\d/.test(String.fromCharCode(event.charCode));");
+	echo $this->Form->input('price_max', $priceOpt);
 	echo $this->Form->button('商品検索', array('type' => 'submit', 'div'=> false,'class'=> "btn btn-primary"));
 	?><a href="sellers/price" class="btn btn-info" style="visibility: visible;">プライスチェックへ</a>
 <?php echo $this->Form->end(); ?>

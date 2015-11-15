@@ -84,6 +84,7 @@ class SellersController extends AppController {
 		}
 
 		$this->set('title_for_layout', 'ランキング変動');
+		$this->set('load_graph', true);
 		$this->set('status', array('未取得', '取得中', '取得済み', '取得失敗'));
 
 		$sellerNames = array();

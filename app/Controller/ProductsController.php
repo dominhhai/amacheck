@@ -69,7 +69,7 @@ class ProductsController extends AppController {
 			try {
 				$graph = $this->crawlPrice($asin);
 			} catch (Exception $ex) {
-				$graph = null;
+				$graph = -1;
 			}
 		}
 
@@ -177,7 +177,19 @@ class ProductsController extends AppController {
 		$html = $html->find('div[id=footer]', 0);
 		// 最後のスクリプトはランキング変動のスクリプトである。
 		$html = $html->find('script', '-1');
-		$html = $html->innertext;
+		$html = trim($html->innertext);
+		// データの分だけ抽出する。
+		// 本データは277位置からある
+		$html = substr($html, 277);
+		$endPos = strpos($html, ']);');
+		$html = rtrim(str_replace('[newDate(', '', preg_replace('/\s+/', '', substr($html, 0 , $endPos))), ']');
+		// JSON形式で保管する。
+		$data = array();
+		foreach (explode('],', $html) as $value) {
+			$endPos = explode('),', $value);
+			$data[$endPos[0]] = $endPos[1];
+		}
+		$html = json_encode($data);
 
 		//　クロールしたデータはDBに保存する。
 		$data = array(

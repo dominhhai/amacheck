@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost:8889
--- Generation Time: 2015 年 11 月 12 日 13:45
+-- Generation Time: 2015 年 11 月 15 日 11:00
 -- サーバのバージョン： 5.5.38
 -- PHP Version: 5.5.14
 
@@ -54,7 +54,7 @@ CREATE TABLE `sellers` (
   `name` varchar(200) NOT NULL COMMENT '出品者名',
   `updated_by` bigint(20) NOT NULL COMMENT '更新者',
   `updated_date` datetime NOT NULL COMMENT '更新日時'
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=14 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=89 ;
 
 -- --------------------------------------------------------
 
@@ -72,14 +72,16 @@ CREATE TABLE `users` (
   `updated_by` bigint(20) NOT NULL COMMENT '更新者',
   `created_date` datetime NOT NULL COMMENT '作成日時',
   `updated_date` datetime NOT NULL COMMENT '更新日時'
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=11 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=13 ;
 
 --
 -- テーブルのデータのダンプ `users`
 --
 
 INSERT INTO `users` (`id`, `username`, `password`, `name`, `role`, `created_by`, `updated_by`, `created_date`, `updated_date`) VALUES
-(10, 'hai', '$2a$10$mmim/uv3C03E0.xPq9nC6eussnvTI8cU5RKinGQJ6sq3UyVeGZo0y', '管理者　ハイ', 999, 0, 0, '0000-00-00 00:00:00', '0000-00-00 00:00:00');
+(10, 'hai', '$2a$10$mmim/uv3C03E0.xPq9nC6eussnvTI8cU5RKinGQJ6sq3UyVeGZo0y', '管理者　ハイ', 999, 0, 0, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
+(11, 'tester_admin', '$2a$10$mmim/uv3C03E0.xPq9nC6eussnvTI8cU5RKinGQJ6sq3UyVeGZo0y', 'テスタ　システム管理', 999, 0, 0, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
+(12, 'tester', '$2a$10$mmim/uv3C03E0.xPq9nC6eussnvTI8cU5RKinGQJ6sq3UyVeGZo0y', 'テスタ　一般', 0, 0, 0, '0000-00-00 00:00:00', '0000-00-00 00:00:00');
 
 --
 -- Indexes for dumped tables
@@ -117,9 +119,9 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `sellers`
 --
 ALTER TABLE `sellers`
-MODIFY `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=14;
+MODIFY `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=89;
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-MODIFY `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=11;
+MODIFY `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=13;

@@ -26,7 +26,11 @@
 		<td><?php echo $product['Seller']['name']; ?></td>
 		<td><?php echo $product['Product']['name']; ?></td>
 		<td><?php echo $product['Product']['id']; ?></td>
-		<td class="load" id="<?php echo $product['Product']['id']; ?>" status="0" style="text-align: center;" name="<?php echo $product['Product']['name']; ?>"><?php echo $status[0] ?></td>
+		<td class="load" id="<?php echo $product['Product']['id']; ?>" status="0" style="text-align: center;" name="<?php echo $product['Product']['name']; ?>">
+			<div id="g-<?php echo $product['Product']['id']; ?>" style="width: 480px; height: 300px; margin: 0; padding: 0;">
+				<?php echo $status[0] ?>
+			</div>
+		</td>
 	</tr>
 <?php endforeach; ?>
 <?php endif; ?>
@@ -36,9 +40,36 @@
 </div>
 
 <script type="text/javascript">
-function getPrice (ele) {
+function drawGraph (id, data) {
+	var graphData = []
+	for (var date in data) {
+		var dateTmp = date.split(',')
+		graphData.push([new Date(parseInt(dateTmp[0]), parseInt(dateTmp[1]), parseInt(dateTmp[2])), parseInt(data[date])])
+	}
+	var dataTable = new google.visualization.DataTable()
+	dataTable.addColumn('date', 'Date')
+	dataTable.addColumn('number', 'ranking')
+	dataTable.addRows(graphData)
+	var options = {
+		width: 480, height: 280,
+		strictFirstColumnType: true,
+		legend: 'none',
+		pointSize: 5,
+		vAxis: {direction: -1},
+		hAxis: {format: 'M/d'},
+		backgroundColor: {strokeWidth: 1 },
+		chartArea: {left: 70, top: 10, width: '80%', height: '85%'},
+		colors: ['#4bb2c5'],
+		seriesType: "line",
+		series: {1: {type: "bars", targetAxisIndex: 1, color: 'pink'}}
+	}
+	var chart = new google.visualization.LineChart(document.getElementById(id))
+	chart.draw(dataTable, options)
+}
+
+function getPrice (ele, div) {
 	ele.attr('status', 1)
-	ele.text("<?php echo $status[1]; ?>")
+	div.text("<?php echo $status[1]; ?>")
 	$.ajax({
 		url: '/products/price',
 		type: 'POST',
@@ -47,26 +78,29 @@ function getPrice (ele) {
 			name: ele.attr('name')
 		},
 		success: function(data) {
-			console.log(data)
-			// if (data == -1) {
-			// 	ele.attr('status', 3)
-			// 	ele.text("<?php echo $status[3]; ?>")
-			// } else {
+			if (data == -1) {
+				ele.attr('status', 3)
+				div.text("<?php echo $status[3]; ?>")
+			} else {
 				ele.attr('status', 2)
-				ele.text("<?php echo $status[2]; ?>")
-			// }
+				try {
+					drawGraph(div.attr('id'), JSON.parse(data))
+				} catch (ex) {
+					div.text("<?php echo $status[2]; ?>")
+				}
+			}
 		},
 		error: function(err) {
 			console.log(err)
 			ele.attr('status', 3)
-			ele.text("<?php echo $status[3]; ?>")
+			div.text("<?php echo $status[3]; ?>")
 		}
 	})
 }
 
-$(document).ready(function() {
+google.setOnLoadCallback(function () {
 	$('table.products td.load').each(function(index) {
-		getPrice($(this))
+		getPrice($(this), $('table.products td.load div#g-'+ $(this).attr('id')))
 	})
 })
 </script>

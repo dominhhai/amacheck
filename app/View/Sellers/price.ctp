@@ -22,11 +22,11 @@
 <?php if (isset($products)): ?>
 <?php foreach ($products as $product): ?>
 	<tr>
-		<td style="text-align: center;"><?php echo $this->Form->checkbox($product['Product']['id'], array('hiddenField' => false)); ?></td>
+		<td style="text-align: center;"><?php echo $this->Form->checkbox($product['Product']['id'], array('hiddenField'=> false)); ?></td>
 		<td><?php echo $product['Seller']['name']; ?></td>
 		<td><?php echo $product['Product']['name']; ?></td>
 		<td><?php echo $product['Product']['id']; ?></td>
-		<td class="load" id="<?php echo $product['Product']['id']; ?>" status="0" style="text-align: center;"><?php echo $status[0] ?></td>
+		<td class="load" id="<?php echo $product['Product']['id']; ?>" status="0" style="text-align: center;" name="<?php echo $product['Product']['name']; ?>"><?php echo $status[0] ?></td>
 	</tr>
 <?php endforeach; ?>
 <?php endif; ?>
@@ -43,7 +43,8 @@ function getPrice (ele) {
 		url: '/products/price',
 		type: 'POST',
 		data: {
-			id: ele.attr('id')
+			id: ele.attr('id'),
+			name: ele.attr('name')
 		},
 		success: function(data) {
 			console.log(data)

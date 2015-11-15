@@ -82,6 +82,7 @@ class SellersController extends AppController {
 		if (($sellers = $this->Session->read('sellers')) == null) {
 			return $this->redirect(array('action'=> 'index'));
 		}
+
 		$this->set('title_for_layout', 'ランキング変動');
 		$this->set('status', array('未取得', '取得中', '取得済み', '取得失敗'));
 
@@ -106,6 +107,7 @@ class SellersController extends AppController {
 				'price >='=> $sellers['price']['min'],
 				'Seller.name'=> $sellerNames
 				),
+			'fields'=> array('Product.id', 'Product.name', 'Seller.name'),
 			'order'=> array('Seller.name', 'Product.name')
 			));
 
@@ -171,7 +173,6 @@ class SellersController extends AppController {
 			)
 		);
 		foreach ($products as $product) {
-			mb_convert_variables('SJIS-win', 'UTF-8', $product['Product']['name']);
 			fputcsv($stream, array(
 				$product['Seller']['name'],
 				$product['Product']['name'],

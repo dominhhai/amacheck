@@ -55,6 +55,9 @@ class ProductsController extends AppController {
 		}
 		$asin = trim($this->request->data['id']);
 
+		// 商品名をUTF-8に変換
+		$this->updateProduct($asin, trim($this->request->data['name']));
+
 		$graph = $this->Price->findById($asin);
 
 		// キャッシュ時間内、データを返す。
@@ -186,6 +189,17 @@ class ProductsController extends AppController {
 		$this->Price->save($data);
 
 		return $html;
+	}
+
+	private function updateProduct($id, $name) {
+		$product = $this->Product->findById($id, array('fields'=> 'name'));
+		if ($product) {
+			$curEn = mb_detect_encoding($product['Product']['name'], 'ASCII,JIS,UTF-8,CP51932,SJIS-win', true);
+			if ($curEn != 'UTF-8') {
+				$this->Product->id = $id;
+				$this->Product->saveField('name', $name);
+			}
+		}
 	}
 
 }

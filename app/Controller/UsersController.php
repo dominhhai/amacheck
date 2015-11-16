@@ -37,18 +37,39 @@ class UsersController extends AppController {
 
 	public function change_pass() {
 		$this->set('title_for_layout', 'パスワード変更');
+		$this->User->validate = $this->User->validatePass;
+
+		if ($this->request->is('post')) {
+			$this->User->set($this->request->data);
+			if ($this->User->validates()) {
+				$data = $this->request->data['User'];
+				if ($data['password'] != $data['psword']) {
+					$this->Session->setFlash(__('新しいパスワードの確認は一致しません。'), 'default', array(), 'pass');
+				} else {
+					$curPass = $this->User->findById($this->Auth->User('id'), array('fields'=>'password'));
+					$curPass = $curPass['User']['password'];
+					if ($curPass != Security::hash($data['passwd'], 'blowfish', $curPass)) {
+						$this->Session->setFlash(__('現在のパスワードは正しくありません。'), 'default', array(), 'pass');
+					} else {
+						$this->User->id = $this->Auth->User('id');
+						$this->User->saveField('password', $data['password']);
+						$this->Session->setFlash(__('パスワードを変更しました。'), 'default', array(), 'pass');
+					}
+				}
+			}
+		}
 	}
 
 	public function add() {
 		$this->set('title_for_layout', 'ユーザ追加');
 		if ($this->request->is('post')) {
-            $this->User->create();
-            if ($this->User->save($this->request->data)) {
-                $this->Session->setFlash(__('ユーザを追加しました。', 'default', array(), 'auth'));
-                return $this->redirect(array('action' => 'login'));
-            }
-            $this->Session->setFlash(__('追加が失敗しました。', 'default', array(), 'auth'));
-        }
+			$this->User->create();
+			if ($this->User->save($this->request->data)) {
+				$this->Session->setFlash(__('ユーザを追加しました。', 'default', array(), 'auth'));
+				return $this->redirect(array('action' => 'login'));
+			}
+			$this->Session->setFlash(__('追加が失敗しました。', 'default', array(), 'auth'));
+		}
 	}
 
 }

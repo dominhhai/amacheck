@@ -17,7 +17,8 @@ class SellersController extends AppController {
 		$this->set('title_for_layout', '商品一覧');
 		if ($this->request->is('post')) {
 			// バリデーションを行う。
-			if ($this->Seller->validates($this->request->data)) {
+			$this->Seller->set($this->request->data);
+			if ($this->Seller->validates()) {
 				$data = $this->request->data['Seller'];
 				if (isset($data['file']['error']) && $data['file']['error'] == 0) {
 					$this->Session->delete('sellers');
@@ -55,8 +56,6 @@ class SellersController extends AppController {
 					$sellers['price'] = array('min'=> $data['price_min'], 'max'=> $data['price_max']);
 					$this->Session->write('sellers', $sellers);
 				}
-			} else {
-				pr ($this->Seller->invalidFields());
 			}
 		}
 		// 出品者一覧を読み込み

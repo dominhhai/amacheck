@@ -5,11 +5,12 @@
 		<legend><?php echo $title_for_layout; ?></legend>
 	<?php
 		echo $this->Form->input('username', array('label' => 'ユーザー名'));
-		echo $this->Form->input('password', array('label' => 'パスワード'));
 		echo $this->Form->input('name', array('label' => '　　　氏名'));
-		echo $this->Form->input('role', array('options'=> array('0'=> '一般', '999'=> '管理'),
+		if ($authUser['role'] == 999) {
+			echo $this->Form->input('role', array('options'=> array('0'=> '一般', '999'=> '管理'),
 			'label'=> '権限レベル', 'style'=> 'font-size: 140%;'));
+		}
 	?>
 	</fieldset>
-<?php echo $this->Form->end(__('追加する')); ?>
+<?php echo $this->Form->end(__('更新する')); ?>
 </div>

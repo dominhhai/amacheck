@@ -15,7 +15,7 @@ class SellersController extends AppController {
 
 	public function index() {
 		$this->set('title_for_layout', '商品一覧');
-		if ($this->request->is('post')) {
+		if ($this->request->is('post') || $this->request->is('put')) {
 			// バリデーションを行う。
 			$this->Seller->set($this->request->data);
 			if ($this->Seller->validates()) {
@@ -91,7 +91,7 @@ class SellersController extends AppController {
 			$sellerNames[] = $seller['name'];
 		}
 
-		if ($this->request->is('post')) {
+		if ($this->request->is('post') || $this->request->is('put')) {
 			$this->layout = FALSE;
 			$this->autoRender = FALSE;
 			if (isset($this->request->data['Product'])) {

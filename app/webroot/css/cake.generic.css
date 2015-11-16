@@ -320,8 +320,9 @@ input, textarea {
 
 select {
 	clear: both;
-	font-size: 120%;
 	vertical-align: text-bottom;
+	padding: 0.3%;
+	width: 30%;
 }
 select[multiple=multiple] {
 	width: 100%;

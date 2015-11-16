@@ -3,7 +3,7 @@
 <head>
 	<?php echo $this->Html->charset(); ?>
 	<title>
-		AmaPr
+		AMC
 		<?php echo $this->fetch('title'); ?>
 	</title>
 	<?php
@@ -40,7 +40,7 @@
 						<li class="dropdown">
 							<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><?php echo $authUser['name']; ?><span class="caret"></span></a>
 							<ul class="dropdown-menu">
-								<li><a href="/users/detail/id:<?php echo $authUser['id']; ?>">プロファイル</a></li>
+								<li><a href="/users/detail?id=<?php echo $authUser['id']; ?>">プロファイル</a></li>
 								<li><a href="/users/change_pass">パスワード変更</a></li>
 								<li role="separator" class="divider"></li>
 								<li><a href="/users/logout">ログアウト</a></li>

@@ -126,7 +126,17 @@ class SellersController extends AppController {
 	}
 
 	private function readSellerCsv($file) {
-		if (($fp = fopen($file, 'r')) == FALSE) {
+		setlocale(LC_ALL, 'ja_JP.UTF-8');
+
+		$data = mb_convert_encoding(file_get_contents($file), 'UTF-8', 'sjis-win');
+
+		$temp = tmpfile();
+		$csv  = array();
+
+		fwrite($temp, $data);
+		rewind($temp);
+
+		if (($fp = fopen($temp, 'r')) == FALSE) {
 			return false;
 		}
 		$sellers = array();
@@ -156,6 +166,8 @@ class SellersController extends AppController {
 			}
 		}
 
+		unlink($temp);
+
 		return $sellers;
 	}
 
@@ -165,17 +177,17 @@ class SellersController extends AppController {
 
 		$stream = fopen('php://output', 'w');
 		fputcsv($stream, array(
-			"出品者名",
-			"タイトル",
-			"ASINコード",
-			"商品URL",
-			"プライスチェックURL"
+			mb_convert_encoding("出品者名", "SJIS-win", "UTF-8"),
+			mb_convert_encoding("タイトル", "SJIS-win", "UTF-8"),
+			mb_convert_encoding("ASINコード", "SJIS-win", "UTF-8"),
+			mb_convert_encoding("商品URL", "SJIS-win", "UTF-8"),
+			mb_convert_encoding("プライスチェックURL", "SJIS-win", "UTF-8"),
 			)
 		);
 		foreach ($products as $product) {
 			fputcsv($stream, array(
-				$product['Seller']['name'],
-				$product['Product']['name'],
+				mb_convert_encoding($product['Seller']['name'], "SJIS-win", "UTF-8"),
+				mb_convert_encoding($product['Product']['name'], "SJIS-win", "UTF-8"),
 				$product['Product']['id'],
 				"http://www.amazon.co.jp/dp/" . $product['Product']['id'],
 				"http://so-bank.jp/detail/?code=" . $product['Product']['id']

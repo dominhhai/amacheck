@@ -777,3 +777,9 @@ table.fixed {
 table.fixed td {
 	overflow: hidden;
 }
+
+td.load div {
+	padding: 0;
+	margin: 0;
+	margin-left: 2px;
+}

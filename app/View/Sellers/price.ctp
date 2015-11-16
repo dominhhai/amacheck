@@ -24,14 +24,14 @@
 <?php if (isset($products)): ?>
 <?php foreach ($products as $product): ?>
 	<tr>
-		<td style="text-align: center;"><?php echo $this->Form->checkbox($product['Product']['id'], array('hiddenField'=> false)); ?></td>
+		<td style="text-align: center;"><?php echo $this->Form->checkbox($product['Product']['id'], array('hiddenField'=> false, 'class'=> "checkbox")); ?></td>
 		<td><?php echo $product['Seller']['name']; ?></td>
 		<td><?php echo $product['Product']['name']; ?></td>
 		<td><?php echo $product['Product']['id']; ?></td>
 		<td style="text-align: center;"><a target="_blank" href="http://www.amazon.co.jp/dp/<?php echo $product['Product']['id']; ?>">確認</a></td>
 		<td style="text-align: center;"><a target="_blank" href="http://so-bank.jp/detail/?code=<?php echo $product['Product']['id']; ?>">確認</a></td>
-		<td class="load" id="<?php echo $product['Product']['id']; ?>" status="0" style="text-align: center;" name="<?php echo $product['Product']['name']; ?>">
-			<div id="g-<?php echo $product['Product']['id']; ?>" style="width: 480px; height: 300px; margin: 0; padding: 0;">
+		<td class="load" id="<?php echo $product['Product']['id']; ?>" status="0" style="text-align: center; padding: 0;" name="<?php echo $product['Product']['name']; ?>">
+			<div id="g-<?php echo $product['Product']['id']; ?>" style="width: 500px; height: 120px; margin: 0; padding: 0;">
 				<?php echo $status[0] ?>
 			</div>
 		</td>
@@ -55,14 +55,14 @@ function drawGraph (id, data) {
 	dataTable.addColumn('number', 'ranking')
 	dataTable.addRows(graphData)
 	var options = {
-		width: 480, height: 280,
+		width: 500, height: 120,
 		strictFirstColumnType: true,
 		legend: 'none',
 		pointSize: 5,
 		vAxis: {direction: -1},
 		hAxis: {format: 'M/d'},
 		backgroundColor: {strokeWidth: 1 },
-		chartArea: {left: 70, top: 10, width: '80%', height: '85%'},
+		chartArea: {left: 70, top: 7, width: '80%', height: '81%'},
 		colors: ['#4bb2c5'],
 		seriesType: "line",
 		series: {1: {type: "bars", targetAxisIndex: 1, color: 'pink'}}
@@ -105,6 +105,12 @@ function getPrice (ele, div) {
 google.setOnLoadCallback(function () {
 	$('table.products td.load').each(function(index) {
 		getPrice($(this), $('table.products td.load div#g-'+ $(this).attr('id')))
+	})
+})
+
+$(function() {
+	$('.checkbox').change(function() {
+		$(this).parent().parent().css('background-color', $(this).is(':checked') ? 'yellow' : '');
 	})
 })
 </script>

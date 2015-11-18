@@ -126,28 +126,24 @@ class SellersController extends AppController {
 	}
 
 	private function readSellerCsv($file) {
-		setlocale(LC_ALL, 'ja_JP.UTF-8');
+		$buf = mb_convert_encoding(file_get_contents($file), 'UTF-8', 'SJIS-win');
+		$lines = explode("\r\n", $buf);
+		// 末尾の改行で分割された行を無視するためarray_pop()している
+		array_pop($lines);
 
-		$data = mb_convert_encoding(file_get_contents($file), 'UTF-8', 'sjis-win');
-
-		$temp = tmpfile();
-		$csv  = array();
-
-		fwrite($temp, $data);
-		rewind($temp);
-
-		if (($fp = fopen($temp, 'r')) == FALSE) {
-			return false;
-		}
 		$sellers = array();
 		$header = true;
-		while (($row = fgetcsv ($fp, 2)) !== FALSE) {
+		foreach ($lines as $line) {
+			$row = str_getcsv($line);
 			if ($header) { //　ヘッダーを読まない。
 				$header = false;
 				continue;
 			}
 			//　セラーIDを取得。
 			$me = $row[1];
+			// 空白セル以降はデータなし
+			if (empty($me)) break;
+
 			if (($mePos = strpos($me, 'seller=')) == FALSE) {
 				if (($mePos = strpos($me, 'merchant=')) != FALSE) {
 					$mePos += 9;
@@ -165,8 +161,6 @@ class SellersController extends AppController {
 				$sellers[$me] = array('name'=> $row[0], 'status'=> 0);
 			}
 		}
-
-		unlink($temp);
 
 		return $sellers;
 	}

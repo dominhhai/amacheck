@@ -1,12 +1,74 @@
 <div class="upload price">
 <?php echo $this->Session->flash('upload'); ?>
-<?php echo $this->Form->create('Product'); ?>
+<?php echo $this->Form->create('Product', array('name'=> 'ProductPriceForm')); ?>
 <div class="center">
 	<a href="../sellers" class="btn btn-warning" style="visibility: visible;">戻る</a>
 	<?php echo $this->Form->button('CSV出力', 
-		array('type' => 'submit', 'div'=> false,'class'=> "btn btn-primary"));
+		array('type' => 'submit', 'name'=> 'csv', 'div'=> false,'class'=> "btn btn-primary"));
 	?>
 </div>
+
+<?php if (isset($products)): ?>
+<div class="control-page">
+<div class="control-block" style="margin-right: 20px;">
+	<label for="ControlMax" class="control-label" style="margin:0;">ページ毎</label>
+	<?php echo $this->Form->input('Control.max', array(
+		'type'=> 'select',
+		'options'=> array('30'=> 30, '50'=> 50, '100'=> 100),
+		'div'=> false,
+		'label'=> false,
+		'empty'=> false,
+		'class'=> 'form-control',
+		'style'=> 'display:inline-block; width:auto; vertical-align: middle;'
+	));
+	echo $this->Form->input('Control.page', array(
+		'type'=> 'hidden'
+		));
+	?>
+	<span><label style="margin:0;">件</label></span>
+</div>
+<nav class="control-block">
+	<ul class="pagination" style="margin-top: 5px; margin-bottom: 5px;">
+	<?php
+		$paginator = $this->Paginator;
+		$opts = array('tag' => 'li', 'onclick' =>"return false;");
+		$first = $paginator->first('先頭ページ', $opts);
+		if (!$first) {
+			$first = '<li class="disabled"><a rel="first">先頭ページ</a></li>';
+		}
+		echo $first;
+
+		if($paginator->hasPrev()){
+			echo $paginator->prev("＜前へ",$opts);
+		}
+
+		echo $paginator->numbers(array(
+			'tag' => 'li',
+			'currentTag' => 'a',
+			'currentClass'=> 'current disabled',
+			'separator' => false,
+			'onclick' =>"return false;"
+			)
+		);
+
+		if($paginator->hasNext()){
+			echo $paginator->next("次へ＞", $opts);
+		}
+
+		$last = $paginator->last('最終ページ', $opts);
+		if (!$last) {
+			$last = '<li class="disabled"><a rel="last">最終ページ</a></li>';
+		}
+		echo $last;
+	?>
+	</ul>
+</nav>
+<div class="control-block" style="margin-left: 20px;"><b>
+	<?php echo $this->Paginator->counter('全{:count}件　{:page}/{:pages}ページを表示'); ?>
+</b></div>
+</div>
+<?php endif; ?>
+
 <table class="products table table-bordered table-hover fixed">
 <col width="3%"/><col width="13%"/><col width="24%"/><col width="10%"/><col width="5%"/><col width="5%"/><col width="40%"/>
 <thead>
@@ -108,9 +170,29 @@ google.setOnLoadCallback(function () {
 	})
 })
 
+function submitForm(data) {
+	var form = document.forms['ProductPriceForm']
+	for (var i in data) {
+		form[i].value = data[i]
+	}
+	form.submit()
+}
+
 $(function() {
 	$('.checkbox').change(function() {
-		$(this).parent().parent().css('background-color', $(this).is(':checked') ? 'yellow' : '');
+		$(this).parent().parent().css('background-color', $(this).is(':checked') ? 'yellow' : '')
+	})
+
+	$('#ControlMax').change(function() {
+		submitForm({'data[Control][max]': $(this).val()})
+	})
+
+	$('.pagination a').on('click', function() {
+		var href = $(this).attr('href')
+		if (typeof href !== 'undefined' && href !== false) {
+			href = href.substr(href.lastIndexOf(':') + 1)
+			submitForm({'data[Control][page]': href})
+		}
 	})
 })
 </script>

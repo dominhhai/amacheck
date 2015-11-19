@@ -64,9 +64,9 @@ h4 {
 	color: #993;
 	font-weight: normal;
 }
-ul, li {
+/*ul, li {
 	margin: 0 12px;
-}
+}*/
 p {
 	margin: 0 0 1em 0;
 }
@@ -182,7 +182,8 @@ table td.actions a {
 .paging {
 	background:#fff;
 	color: #ccc;
-	margin-top: 1em;
+	margin-top: 0;
+	margin-bottom: 0;
 	clear:both;
 }
 .paging .current,
@@ -195,7 +196,7 @@ table td.actions a {
 .paging > span {
 	display: inline-block;
 	border: 1px solid #ccc;
-	border-left: 0;
+	/*border-left: 0;*/
 }
 .paging > span:hover {
 	background: #efefef;
@@ -782,4 +783,13 @@ td.load div {
 	padding: 0;
 	margin: 0;
 	margin-left: 2px;
+}
+
+.control-page, .control-page div {
+	vertical-align: top;
+	margin: 0;
+}
+
+.control-page .control-block {
+	display: inline-block;
 }

@@ -5,11 +5,18 @@ App::uses('AppController', 'Controller');
 class SellersController extends AppController {
 
 	public $uses = array('Seller', 'Product', 'Price');
+
 	public $components = array('Paginator');
 	public $paginate = array(
-		'limit'=> 10,
-		'order'=> array(
-			'Product.seller_id'=> 'asc'
+			'fields'=> array(
+				'Product.id',
+				'Product.name',
+				'Product.seller_id',
+				'Seller.name'
+			),
+			'order'=> array(
+				'Product.seller_id'=> 'asc',
+				'Product.id'=> 'asc'
 			)
 		);
 
@@ -21,7 +28,7 @@ class SellersController extends AppController {
 			if ($this->Seller->validates()) {
 				$data = $this->request->data['Seller'];
 				if (isset($data['file']['error']) && $data['file']['error'] == 0) {
-					$this->Session->delete('sellers');
+					$this->Session->delete(SESSION_SELLER);
 					// ファイル形式を確認。
 					$mimetypes = array(
 						'text/csv',
@@ -43,23 +50,23 @@ class SellersController extends AppController {
 								'default', array(), 'upload');
 						} else {
 							//　セッションにて保管する。
-							$this->Session->write('sellers',
+							$this->Session->write(SESSION_SELLER,
 								array('price'=> array('min'=> $data['price_min'], 'max'=> $data['price_max']),
 										'sellers'=> $sellers));
 						}
 						unlink($data['file']['tmp_name']);
 					}
-				} else if ($this->Session->read('sellers') == null) {
+				} else if ($this->Session->read(SESSION_SELLER) == null) {
 					$this->Session->setFlash(__('出品者ファイルをアップロードしてください。'), 'default', array(), 'upload');
 				} else {
-					$sellers = $this->Session->read('sellers');
+					$sellers = $this->Session->read(SESSION_SELLER);
 					$sellers['price'] = array('min'=> $data['price_min'], 'max'=> $data['price_max']);
-					$this->Session->write('sellers', $sellers);
+					$this->Session->write(SESSION_SELLER, $sellers);
 				}
 			}
 		}
 		// 出品者一覧を読み込み
-		if (($sellers = $this->Session->read('sellers')) != null) {
+		if (($sellers = $this->Session->read(SESSION_SELLER)) != null) {
 			$this->Seller->validate = $this->Seller->validatePrice;
 
 			$this->set('sellers', $sellers['sellers']);
@@ -78,7 +85,7 @@ class SellersController extends AppController {
 	}
 
 	public function price() {
-		if (($sellers = $this->Session->read('sellers')) == null) {
+		if (($sellers = $this->Session->read(SESSION_SELLER)) == null) {
 			return $this->redirect(array('action'=> 'index'));
 		}
 
@@ -86,43 +93,66 @@ class SellersController extends AppController {
 		$this->set('load_graph', true);
 		$this->set('status', array('未取得', '取得中', '取得済み', '取得失敗'));
 
-		$sellerNames = array();
-		foreach ($sellers['sellers'] as $seller) {
-			$sellerNames[] = $seller['name'];
-		}
+		$sellerIds = array_keys($sellers['sellers']);
 
 		if ($this->request->is('post') || $this->request->is('put')) {
-			$this->layout = FALSE;
-			$this->autoRender = FALSE;
 			if (isset($this->request->data['Product'])) {
 				$productIds = array_keys($this->request->data['Product']);
 			} else {
 				$productIds = array();
 			}
+			// CSV出力
+			if (isset($this->request->data['csv'])) {
+				$this->layout = FALSE;
+				$this->autoRender = FALSE;
+				
+				$products = $this->Product->find('all', array(
+					'conditions'=> array(
+						'Product.id'=> $productIds,
+						'price <='=> $sellers['price']['max'],
+						'price >='=> $sellers['price']['min'],
+						'Seller.me'=> $sellerIds
+						),
+					'fields'=> array('Product.id', 'Product.name', 'Product.seller_id', 'Seller.name'),
+					'order'=> array('Product.seller_id'=> 'asc', 'Product.id'=> 'asc')
+				));
 
-			$products = $this->Product->find('all', array(
-			'conditions'=> array(
-				'Product.id'=> $productIds,
-				'price <='=> $sellers['price']['max'],
-				'price >='=> $sellers['price']['min'],
-				'Seller.name'=> $sellerNames
-				),
-			'fields'=> array('Product.id', 'Product.name', 'Seller.name'),
-			'order'=> array('Seller.name', 'Product.name')
-			));
-
-			return $this->writeProductCsv($products);
+				return $this->writeProductCsv($products);
+			}
+			// 現ページ
+			if (isset($this->request->data['Control']['page'])) {
+				$this->request->params['named']['page'] = $this->request->data['Control']['page'];
+			}
 		}
 
-		$products = $this->Product->find('all', array(
-			'conditions'=> array(
-				'price <='=> $sellers['price']['max'],
-				'price >='=> $sellers['price']['min'],
-				'Seller.name'=> $sellerNames
-				),
-			'order'=> array('Seller.name', 'Product.name')
-			));
+		$this->Paginator->settings = $this->paginate;
+		// ページ毎件数
+		if (empty($this->request->data['Control']['max'])) {
+			$this->Paginator->settings['limit'] = PAGE_MAX;
+			$this->request->data['Control']['max'] = PAGE_MAX;
+		} else {
+			$this->Paginator->settings['limit'] = $this->request->data['Control']['max'];
+		}
+		
+		try {
+			$this->Paginator->settings['conditions'] = array(
+					'price <='=> $sellers['price']['max'],
+					'price >='=> $sellers['price']['min'],
+					'Seller.me'=> $sellerIds
+				);
+			$products = $this->Paginator->paginate('Product');
+		} catch (NotFoundException $e) {
+			$products = array();
+		}
+
 		$this->set('products', $products);
+
+		// 現ページ
+		if (empty($this->request->params['named']['page'])) {
+			$this->request->data['Control']['page'] = 1;
+		} else {
+			$this->request->data['Control']['page'] = $this->request->params['named']['page'];
+		}
 	}
 
 	private function readSellerCsv($file) {

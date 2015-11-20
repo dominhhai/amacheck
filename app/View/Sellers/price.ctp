@@ -85,12 +85,12 @@
 <tbody>
 <?php if (isset($products)): ?>
 <?php foreach ($products as $product): ?>
-	<tr>
-		<td style="text-align: center;"><?php
-			$checked = $this->Session->read(SESSION_CSV);
-			$checked = !empty($checked[$product['Product']['id']]);
-			echo $this->Form->checkbox($product['Product']['id'], array('class'=> "checkbox", 'checked'=> $checked));
-		?></td>
+	<?php
+		$checked = $this->Session->read(SESSION_CSV);
+		$checked = !empty($checked[$product['Product']['id']]);
+	?>
+	<tr <?php if($checked) echo 'style="background-color: yellow;"'; ?>>
+		<td style="text-align: center;"><?php echo $this->Form->checkbox($product['Product']['id'], array('class'=> "checkbox", 'checked'=> $checked)); ?></td>
 		<td><?php echo $product['Seller']['name']; ?></td>
 		<td><?php echo $product['Product']['name']; ?></td>
 		<td><?php echo $product['Product']['id']; ?></td>

@@ -63,8 +63,12 @@ class AppController extends Controller {
 		parent::beforeFilter();
 		$this->set('authUser', $this->Auth->user());
 		// CSV出力セッションを削除する
-		// pr ($this->referer(null, true));
-		// pr ($this->request->controller . '/:' . $this->request->action);
+		$csvUrl = '/sellers/price';
+		$prevUrl = $this->referer(null, true);
+		$curUrl = $this->request->controller . '/:' . $this->request->action;
+		if (($prevUrl != $curUrl) && ($prevUrl ==  $csvUrl|| $curUrl == $csvUrl)) {
+			$this->Session->delete(SESSION_CSV);
+		}
 	}
 
 	public function isAuthorized($user = null) {

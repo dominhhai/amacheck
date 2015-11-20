@@ -12,8 +12,15 @@ class UsersController extends AppController {
 	}
 
 	public function index() {
-		// $this->set('title_for_layout', 'ユーザー管理');
-		$this->redirect(array('action'=> 'add'));
+		$this->set('title_for_layout', 'ユーザー管理');
+
+		if ($this->request->is('post') || $this->request->is('put')) {
+			$this->User->delete($this->request->data['User']['user_id']);
+			$this->Session->setFlash(__('ユーザを削除しました。'));
+		}
+
+		$users = $this->User->find('all');
+		$this->set('users', $users);
 	}
 
 	public function login() {
@@ -70,9 +77,9 @@ class UsersController extends AppController {
 			}
 		}
 		if ($this->request->is('get')) {
-			$user = ($id == $this->Auth->User('id')) ? $this->Auth->user() : $this->User->findById($id);
+			$user = $this->User->findById($id);
 			if ($user) {
-				$this->request->data = array('User'=> $user);
+				$this->request->data = $user;
 			} else {
 				return $this->redirect(array('action'=> 'add'));
 			}
@@ -87,6 +94,7 @@ class UsersController extends AppController {
 			$this->User->set($data);
 			if ($this->User->save()) {
 				$this->Session->setFlash(__('ユーザを更新しました。', 'default', array(), 'detail'));
+				$this->redirect(array('action'=> 'index'));
 			} else {
 				$this->Session->setFlash(__('更新が失敗しました。', 'default', array(), 'detail'));
 			}
@@ -106,6 +114,7 @@ class UsersController extends AppController {
 			$this->User->set($data);
 			if ($this->User->save()) {
 				$this->Session->setFlash(__('ユーザを追加しました。', 'default', array(), 'add'));
+				$this->redirect(array('action'=> 'index'));
 			} else {
 				$this->Session->setFlash(__('追加が失敗しました。', 'default', array(), 'add'));
 			}

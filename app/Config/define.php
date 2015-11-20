@@ -10,6 +10,6 @@ define('PRICE_RANKING_GRAPH', "graph3");
 
 // セッション
 define('SESSION_SELLER', 'sellers');
-define('SESSION_CSV', 'csv');
+define('SESSION_CSV', 'checkedProds');
 // ページ毎件数
 define('PAGE_MAX', 30);

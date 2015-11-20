@@ -102,7 +102,12 @@ class SellersController extends AppController {
 				$productIds = array();
 			}
 			if (isset($this->request->data['Product'])) {
-				$productIds = array_merge($productIds, $this->request->data['Product']);
+				$productIds = $this->request->data['Product'] + $productIds;
+				// 選択されない商品を保存しない
+				$removeKeys = array_keys($productIds, 0);
+				foreach ($removeKeys as $key) {
+					unset($productIds[$key]);
+				}
 				$this->Session->write(SESSION_CSV, $productIds);
 			}
 			
@@ -112,10 +117,10 @@ class SellersController extends AppController {
 				$this->autoRender = FALSE;
 				
 				// 選択された商品のみ出力
-				$productIds = array_keys($productIds, 1);
+				$productIds = array_keys($productIds);
 				if (empty($productIds)) {
 					$products = $productIds;
-				} else {				
+				} else {
 					$products = $this->Product->find('all', array(
 						'conditions'=> array(
 							'Product.id'=> $productIds,
@@ -134,6 +139,8 @@ class SellersController extends AppController {
 			if (isset($this->request->data['Control']['page'])) {
 				$this->request->params['named']['page'] = $this->request->data['Control']['page'];
 			}
+		} else { // GET ページ初期化
+			$this->Session->delete(SESSION_CSV);
 		}
 
 		$this->Paginator->settings = $this->paginate;

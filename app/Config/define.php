@@ -1,6 +1,10 @@
 <?php
 $config=array();
 
+// 権限
+define('USER_ADMIN', 999);
+define('USER_NORMAL', 0);
+
 // クロールしたデータを無効にするタイム（単位：秒）
 // 一日　（２４時間〜６０分〜６０秒）
 define('CRAWL_TIMEOUT', 86400);

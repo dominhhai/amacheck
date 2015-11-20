@@ -60,14 +60,19 @@ class UsersController extends AppController {
 	}
 
 	public function detail() {
-		if (empty($this->request->query['id'])) {
-			return $this->redirect(array('action'=> 'add'));
+		if ($this->Auth->User('role') == USER_NORMAL) {
+			$id = $this->Auth->User('id');
+		} else {
+			if (empty($this->request->query['id'])) {
+				$id = $this->Auth->User('id');
+			} else {
+				$id = $this->request->query['id'];
+			}
 		}
-		$id = $this->request->query['id'];
 		if ($this->request->is('get')) {
-			$user = $this->User->findById($id);
+			$user = ($id == $this->Auth->User('id')) ? $this->Auth->user() : $this->User->findById($id);
 			if ($user) {
-				$this->request->data = $user;
+				$this->request->data = array('User'=> $user);
 			} else {
 				return $this->redirect(array('action'=> 'add'));
 			}

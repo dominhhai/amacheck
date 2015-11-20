@@ -96,26 +96,37 @@ class SellersController extends AppController {
 		$sellerIds = array_keys($sellers['sellers']);
 
 		if ($this->request->is('post') || $this->request->is('put')) {
-			if (isset($this->request->data['Product'])) {
-				$productIds = array_keys($this->request->data['Product']);
-			} else {
+			// 選択された商品をセッションに保存
+			$productIds = $this->Session->read(SESSION_CSV);
+			if ($productIds == null) {
 				$productIds = array();
 			}
+			if (isset($this->request->data['Product'])) {
+				$productIds = array_merge($productIds, $this->request->data['Product']);
+				$this->Session->write(SESSION_CSV, $productIds);
+			}
+			
 			// CSV出力
 			if (isset($this->request->data['csv'])) {
 				$this->layout = FALSE;
 				$this->autoRender = FALSE;
 				
-				$products = $this->Product->find('all', array(
-					'conditions'=> array(
-						'Product.id'=> $productIds,
-						'price <='=> $sellers['price']['max'],
-						'price >='=> $sellers['price']['min'],
-						'Seller.me'=> $sellerIds
-						),
-					'fields'=> array('Product.id', 'Product.name', 'Product.seller_id', 'Seller.name'),
-					'order'=> array('Product.seller_id'=> 'asc', 'Product.id'=> 'asc')
-				));
+				// 選択された商品のみ出力
+				$productIds = array_keys($productIds, 1);
+				if (empty($productIds)) {
+					$products = $productIds;
+				} else {				
+					$products = $this->Product->find('all', array(
+						'conditions'=> array(
+							'Product.id'=> $productIds,
+							'price <='=> $sellers['price']['max'],
+							'price >='=> $sellers['price']['min'],
+							'Seller.me'=> $sellerIds
+							),
+						'fields'=> array('Product.id', 'Product.name', 'Product.seller_id', 'Seller.name'),
+						'order'=> array('Product.seller_id'=> 'asc', 'Product.id'=> 'asc')
+					));
+				}
 
 				return $this->writeProductCsv($products);
 			}

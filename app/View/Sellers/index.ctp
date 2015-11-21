@@ -20,7 +20,7 @@
 		<th>No.</th>
 		<th>出品者ID</th>
 		<th>出品者名</th>
-		<th>スタテース</th>
+		<th>ステータス</th>
 	</tr>
 </thead>
 <tbody>

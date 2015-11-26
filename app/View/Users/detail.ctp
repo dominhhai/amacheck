@@ -14,3 +14,8 @@
 	</fieldset>
 <?php echo $this->Form->end(__('更新する')); ?>
 </div>
+<script type="text/javascript">
+$(function () {
+	$('#UserUsername').focus()
+})
+</script>

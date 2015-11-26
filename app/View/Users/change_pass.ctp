@@ -11,3 +11,8 @@
 </fieldset>
 <?php echo $this->Form->end(__('変更する')); ?>
 </div>
+<script type="text/javascript">
+$(function () {
+	$('#UserPasswd').focus()
+})
+</script>

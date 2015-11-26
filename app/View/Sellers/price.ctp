@@ -70,12 +70,14 @@
 <?php endif; ?>
 
 <table class="products table table-bordered table-hover fixed">
-<col width="3%"/><col width="13%"/><col width="24%"/><col width="10%"/><col width="5%"/><col width="5%"/><col width="40%"/>
+<col width="3%"/><col width="11%"/><col width="15%"/><col width="4%"/><col width="7%"/><col width="10%"/><col width="5%"/><col width="5%"/><col width="40%"/>
 <thead>
 	<tr>
 		<th>選</th>
 		<th>出品者名</th>
 		<th>タイトル</th>
+		<th>ライバル数</th>
+		<th>最安価格</th>
 		<th>ASINコード</th>
 		<th>商品URL</th>
 		<th>プライスチェックURL</th>
@@ -93,6 +95,8 @@
 		<td style="text-align: center;"><?php echo $this->Form->checkbox($product['Product']['id'], array('class'=> "checkbox", 'checked'=> $checked)); ?></td>
 		<td><?php echo $product['Seller']['name']; ?></td>
 		<td><?php echo $product['Product']['name']; ?></td>
+		<td id="s-<?php echo $product['Product']['id']; ?>" style="text-align: right;"></td>
+		<td id="p-<?php echo $product['Product']['id']; ?>" style="text-align: right;"></td>
 		<td><?php echo $product['Product']['id']; ?></td>
 		<td style="text-align: center;"><a target="_blank" href="http://www.amazon.co.jp/dp/<?php echo $product['Product']['id']; ?>">確認</a></td>
 		<td style="text-align: center;"><a target="_blank" href="http://so-bank.jp/detail/?code=<?php echo $product['Product']['id']; ?>">確認</a></td>
@@ -174,7 +178,9 @@ function getPrice (ele, div) {
 			id: id
 		},
 		success: function(data) {
-			console.log(JSON.parse(data))
+			data = JSON.parse(data)
+			$('td#p-'+ id).text(data.price);
+			$('td#s-'+ id).text(data.sellers);
 		},
 		error: function(err) {
 			console.log(err)

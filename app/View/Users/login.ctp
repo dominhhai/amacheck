@@ -4,7 +4,7 @@
 <fieldset>
 	<legend><?php echo __('ID及びパスワードを入力してください。'); ?></legend>
 	<?php
-		echo $this->Form->input('username', array('label' => 'ユーザー名'));
+		echo $this->Form->input('username', array('label' => 'ユーザー名', 'style' => 'ime-mode: disabled;'));
 		echo $this->Form->input('password', array('label' => 'パスワード'));
 	?>
 </fieldset>

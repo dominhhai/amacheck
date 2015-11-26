@@ -4,10 +4,10 @@
 	echo $this->Form->create('Seller', isset($sellers) ? array('type'=> 'file') : array('type'=> 'file', 'class'=> 'required'));
 	echo $this->Form->label('file', '出品者 CSV');
 	echo $this->Form->file('file', array('style'=> 'display: inline;'));
-	$priceOpt = array('label' => '金額設定', 'div'=> false, 'onkeypress'=>"return event.charCode === 0 || event.charCode === 13 || /\d/.test(String.fromCharCode(event.charCode));");
+	$priceOpt = array('label' => '金額設定', 'div'=> false, 'onkeypress'=>"return event.charCode === 0 || event.charCode === 13 || /\d/.test(String.fromCharCode(event.charCode));", 'style' => 'ime-mode: disabled;');
 	echo $this->Form->input('price_min', $priceOpt);
 	?> 〜 <?php
-	$priceOpt = array('label' => false, 'div'=> false, 'onkeypress'=>"return event.charCode === 0 || event.charCode === 13 || /\d/.test(String.fromCharCode(event.charCode));");
+	$priceOpt['label'] = false;
 	echo $this->Form->input('price_max', $priceOpt);
 	echo $this->Form->button('商品検索', array('type' => 'submit', 'div'=> false,'class'=> "btn btn-primary"));
 	?><a id="btn-pricecheck" href="sellers/price" class="btn btn-info" disabled='disabled' onclick="return false;">プライスチェックへ</a>

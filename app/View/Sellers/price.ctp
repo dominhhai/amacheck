@@ -140,11 +140,12 @@ function drawGraph (id, data) {
 function getPrice (ele, div) {
 	ele.attr('status', 1)
 	div.text("<?php echo $status[1]; ?>")
+	var id = ele.attr('id')
 	$.ajax({
 		url: '/products/price',
 		type: 'POST',
 		data: {
-			id: ele.attr('id'),
+			id: id,
 			name: ele.attr('name')
 		},
 		success: function(data) {
@@ -161,9 +162,22 @@ function getPrice (ele, div) {
 			}
 		},
 		error: function(err) {
-			console.log(err)
 			ele.attr('status', 3)
 			div.text("<?php echo $status[3]; ?>")
+		}
+	})
+
+	$.ajax({
+		url: '/products/productinfo',
+		type: 'POST',
+		data: {
+			id: id
+		},
+		success: function(data) {
+			console.log(JSON.parse(data))
+		},
+		error: function(err) {
+			console.log(err)
 		}
 	})
 }

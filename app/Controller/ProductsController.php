@@ -7,7 +7,7 @@ require_once(APP . 'Vendor' . DS . 'simple_html_dom.php');
 
 class ProductsController extends AppController {
 
-	public $uses = array('Seller', 'Product', 'Price');
+	public $uses = array('Seller', 'Product', 'Price', 'Productinfo');
 
 	public function product() {
 		$this->autoRender = FALSE;
@@ -74,6 +74,27 @@ class ProductsController extends AppController {
 		}
 
 		return $graph;
+	}
+
+	public function productinfo() {
+		$this->autoRender = FALSE;
+		if (!$this->request->is('ajax')) {
+			return $this->redirect(array('controller'=> 'sellers'));
+		}
+		$asin = trim($this->request->data['id']);
+
+		// キャッシュ時間内、データを返す。
+		$data = $this->Productinfo->findById($asin);
+		if ($data && $this->isValid($data['Productinfo']['updated_date'])) {
+			$data = $data['Productinfo'];
+			$data = array('price'=> $data['min_price'], 'sellers'=> $data['num_sellers']);
+		}
+		// データがない場合、又はデータが古い場合、新データを取得する。
+		else {
+			$data = $this->crawlAmazonProductInfo($asin);
+		}
+
+		return json_encode($data);
 	}
 
 	private function isValid($date) {
@@ -212,6 +233,73 @@ class ProductsController extends AppController {
 				$this->Product->saveField('name', $name);
 			}
 		}
+	}
+
+	private function crawlAmazonProductInfo($asin) {
+		$minPrice = 0;
+		$numSellers = 1;
+
+		$html = file_get_html(AMAZON_DETAIL . $asin);
+		$html = $html->find('div[id=centerCol]', 0);
+
+		$prices = $html->find('span.a-color-price');
+		if (count($prices) > 0) {
+			// 最安
+			$minPrice = $prices[0];
+			$minPrice = substr(trim($minPrice->plaintext), 4);
+			//　新品の出品者数
+			foreach ($prices as $ele) {
+				$a = $ele->prev_sibling();
+				if ($a && $a->tag == 'a') {
+					$a = trim($a->plaintext);
+					// 新品の出品： →　18文字
+					if ((strlen($a) > 18) && (substr($a, 0, 15) == '新品の出品')) {
+						$numSellers = substr($a, 18);
+						break;
+					}
+				}
+			}
+		}
+
+		// 本の場合
+		if ($numSellers == 1) {
+			$prices = $html->find('span.olp-new a', 0);
+			if ($prices) {
+				$prices = trim($prices->plaintext);
+				$len = strlen($prices);
+				if (($len > 6) && (substr($prices, $len - 6) == '新品')) {
+					$prices = substr($prices, 0, $len - 6);
+					$len = strrpos($prices, 'り');
+					$numSellers = trim(substr($prices, $len + 3));
+
+					if ($minPrice == 0) {
+						$minPrice = trim(substr($prices, 4, $len - 7));
+					}
+				}
+			}
+		}
+
+		// 新品の本がない場合
+		if ($minPrice == 0) {
+			$prices = $html->find('span.olp-used a', 0);
+			if ($prices) {
+				$prices = trim($prices->plaintext);
+				$len = strrpos($prices, 'り');
+				$minPrice = trim(substr($prices, 4, $len - 7));
+			}
+		}
+
+		//　クロールしたデータはDBに保存する。
+		$data = array(
+				'id'=> $asin,
+				'min_price'=> $minPrice,
+				'num_sellers'=> $numSellers,
+				'updated_by'=> $this->Auth->User('id'),
+				'updated_date'=> date('Y-m-d H:i:s')
+			);
+		$this->Productinfo->save($data);
+
+		return array('price'=> $minPrice, 'sellers'=> $numSellers);
 	}
 
 }

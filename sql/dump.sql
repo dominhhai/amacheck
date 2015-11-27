@@ -45,6 +45,20 @@ CREATE TABLE `products` (
 -- --------------------------------------------------------
 
 --
+-- テーブルの構造 `productinfos`
+--
+
+CREATE TABLE `productinfos` (
+  `id` char(10) NOT NULL DEFAULT '' COMMENT 'ASINコード',
+  `min_price` varchar(20) NOT NULL COMMENT '最安',
+  `num_sellers` varchar(10) NOT NULL COMMENT '新品の出品者数',
+  `updated_by` bigint(20) NOT NULL COMMENT '更新者',
+  `updated_date` datetime NOT NULL COMMENT '更新日時'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
 -- テーブルの構造 `sellers`
 --
 
@@ -95,6 +109,12 @@ ALTER TABLE `prices`
 -- Indexes for table `products`
 --
 ALTER TABLE `products`
+ ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `productinfos`
+--
+ALTER TABLE `productinfos`
  ADD PRIMARY KEY (`id`);
 
 --

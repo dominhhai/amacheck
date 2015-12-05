@@ -121,6 +121,7 @@ class SellersController extends AppController {
 				if (empty($productIds)) {
 					$products = $productIds;
 				} else {
+					$this->Product->hasOne = $this->Product->hasOneData;
 					$products = $this->Product->find('all', array(
 						'conditions'=> array(
 							'Product.id'=> $productIds,
@@ -128,11 +129,12 @@ class SellersController extends AppController {
 							'price >='=> $sellers['price']['min'],
 							'Seller.me'=> $sellerIds
 							),
-						'fields'=> array('Product.id', 'Product.name', 'Product.seller_id', 'Seller.name'),
+						'fields'=> array('Product.id', 'Product.name', 'Product.seller_id',
+											'Seller.name',
+											'Productinfo.min_price', 'Productinfo.num_sellers'),
 						'order'=> array('Product.seller_id'=> 'asc', 'Product.id'=> 'asc')
 					));
 				}
-
 				return $this->writeProductCsv($products);
 			}
 			// 現ページ
@@ -222,6 +224,8 @@ class SellersController extends AppController {
 			mb_convert_encoding("出品者名", "SJIS-win", "UTF-8"),
 			mb_convert_encoding("タイトル", "SJIS-win", "UTF-8"),
 			mb_convert_encoding("ASINコード", "SJIS-win", "UTF-8"),
+			mb_convert_encoding("ライバル数", "SJIS-win", "UTF-8"),
+			mb_convert_encoding("最安値", "SJIS-win", "UTF-8"),
 			mb_convert_encoding("商品URL", "SJIS-win", "UTF-8"),
 			mb_convert_encoding("プライスチェックURL", "SJIS-win", "UTF-8"),
 			)
@@ -231,6 +235,8 @@ class SellersController extends AppController {
 				mb_convert_encoding($product['Seller']['name'], "SJIS-win", "UTF-8"),
 				mb_convert_encoding($product['Product']['name'], "SJIS-win", "UTF-8"),
 				$product['Product']['id'],
+				$product['Productinfo']['num_sellers'],
+				$product['Productinfo']['min_price'],
 				"http://www.amazon.co.jp/dp/" . $product['Product']['id'],
 				"http://so-bank.jp/detail/?code=" . $product['Product']['id']
 				)

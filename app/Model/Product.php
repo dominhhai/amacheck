@@ -9,4 +9,11 @@ class Product extends AppModel {
 			'foreignKey' => 'seller_id'
 		)
 	);
+
+	public $hasOneData = array(
+		'Productinfo' => array(
+			'className' => 'Productinfo',
+			'foreignKey' => 'id'
+		)
+	);
 }
